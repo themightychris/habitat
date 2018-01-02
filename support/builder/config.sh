@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+while [ ! -f /hab/svc/builder-datastore/config/pwfile ]
+do
+  sleep 2
+done
+
 export PGPASSWORD
 PGPASSWORD=$(cat /hab/svc/builder-datastore/config/pwfile)
 
@@ -331,6 +336,22 @@ early_access_teams = [$GITHUB_ADMIN_TEAM]
 
 [github]
 url = "$GITHUB_API_URL"
+client_id = "$GITHUB_CLIENT_ID"
+client_secret = "$GITHUB_CLIENT_SECRET"
+app_id = $GITHUB_APP_ID
+EOT
+
+mkdir -p /hab/svc/builder-worker
+cat <<EOT > /hab/svc/builder-worker/user.toml
+key_dir = "/hab/svc/builder-worker/files"
+auto_publish = true
+log_level = "debug"
+airlock_enabled = false
+data_path = "/hab/svc/builder-worker/data"
+bldr_url = "http://localhost:9636"
+[github]
+url = "$GITHUB_API_URL"
+web_url = "$GITHUB_WEB_URL"
 client_id = "$GITHUB_CLIENT_ID"
 client_secret = "$GITHUB_CLIENT_SECRET"
 app_id = $GITHUB_APP_ID
