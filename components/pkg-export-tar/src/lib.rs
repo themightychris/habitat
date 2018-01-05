@@ -90,11 +90,12 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
 
 pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
    ui.begin(format!(
-        "Building a runnable Docker image with: {}",
+        "Building a tarball with: {}",
         build_spec.idents_or_archives.join(", ")
     ))?;
 
     let build_root = TarBuildRoot::from_build_root(build_spec.create(ui)?, ui)?;
+    let tarball = build_root.export(ui, naming)?;
   
     Ok(())
 }

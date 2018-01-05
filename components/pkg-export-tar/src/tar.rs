@@ -21,7 +21,7 @@ lazy_static! {
     /// Absolute path to the tar program
     static ref TAR_PROGRAM: PathBuf = hfs::resolve_cmd_in_pkg(
         "tar",
-        env!("OUT_DIR"),
+        include_str!(concat!(env!("OUT_DIR"), "/TAR_PKG_IDENT")),
     );
 }
 
@@ -127,7 +127,7 @@ impl TarBuildRoot {
     }
 
     fn build_tarball(&self, ui: &mut UI, naming: &Naming) -> Result<TarBall> {
-        ui.status(Status::Creating, "Docker image")?;
+        ui.status(Status::Creating, "Tarball")?;
         let ident = self.0.ctx().installed_primary_svc_ident()?;
         let version = &ident.version.expect("version exists");
         let release = &ident.release.expect("release exists");
@@ -140,9 +140,10 @@ impl TarBuildRoot {
         });
 
         let mut tarball_path = PathBuf::new();
+
         tarball_path.push(self.0.workdir());
         let mut tarball = TarBall::new(tarball_path);
-
+ 
         tarball.build()
     } 
 }
