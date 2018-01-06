@@ -27,6 +27,7 @@ pub mod rootfs;
 mod tar;
 mod util;
 
+use std::process::Command;
 pub use cli::{Cli, PkgIdentArgOptions};
 pub use error::{Error, Result};
 use common::ui::UI;
@@ -82,21 +83,31 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
     let default_url = hurl::default_bldr_url();
     let spec = BuildSpec::new_from_cli_matches(&matches, &default_channel, &default_url);
     let naming = Naming::new_from_cli_matches(&matches);
-
     let tarball = export(ui, spec, &naming)?;
 
     Ok(())
 }
 
 pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
+
+   let hart_to_package = build_spec.idents_or_archives.join(", ");
    ui.begin(format!(
         "Building a tarball with: {}",
-        build_spec.idents_or_archives.join(", ")
+        hart_to_package
     ))?;
 
-    let build_root = TarBuildRoot::from_build_root(build_spec.create(ui)?, ui)?;
-    let tarball = build_root.export(ui, naming)?;
-  
+//    let build_root = TarBuildRoot::from_build_root(build_spec.create(ui)?, ui)?;
+//    let tarball = build_root.export(ui, naming)?;
+
+    let studio_command = Command::new("hab")
+                                    .arg("studio")
+                                    .arg("-r")
+                                    .arg("/tmp/tarball_studio")
+                                    .arg("-t")
+                                    .arg("bare")
+                                    .arg("new");
+                                    .output();
+//    let echo_command = Command::new("echo")  
     Ok(())
 }
 

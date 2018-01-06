@@ -40,6 +40,9 @@ impl TarBallBuilder {
     }
 
     pub fn build(self) -> Result<TarBall> {
+// Take Hart File
+// Install in new studio ("bare new" studio) - this will put the application and any dependencies in the /hab directory
+// Tar up the /hab director
         let mut cmd = tar_cmd();
         cmd.arg("-cpzf").arg("xyz.tar.gz").arg("-C").arg(self.workdir);
 
@@ -64,7 +67,15 @@ impl TarBuildRoot {
             root.create_entrypoint(ui)?;
         }
 
+        root.create_tar_env(ui)?;
         Ok(root)
+    }
+
+    fn create_tar_env(&self, ui: &mut UI) -> Result<()> {
+        let ctx = self.0.ctx();
+        println!("===========");
+        println!("ctx {:?}", ctx);
+        Ok(())
     }
 
     fn add_users_and_groups(&self, ui: &mut UI) -> Result<()> {
@@ -139,11 +150,15 @@ impl TarBuildRoot {
             "channel": self.0.ctx().channel(),
         });
 
+
+
         let mut tarball_path = PathBuf::new();
 
         tarball_path.push(self.0.workdir());
+        // Unpack package in the tarball_path directory
+
         let mut tarball = TarBall::new(tarball_path);
- 
+
         tarball.build()
     } 
 }
