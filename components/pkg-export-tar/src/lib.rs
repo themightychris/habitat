@@ -8,6 +8,7 @@ extern crate base64;
 extern crate hab;
 extern crate handlebars;
 
+extern crate mktemp;
 extern crate tempdir;
 extern crate failure;
 #[macro_use]
@@ -33,6 +34,7 @@ pub use error::{Error, Result};
 use common::ui::UI;
 use hcore::channel;
 use hcore::url as hurl;
+use mktemp::Temp;
 
 use tar::{TarBuildRoot};
 
@@ -96,18 +98,33 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
         hart_to_package
     ))?;
 
-//    let build_root = TarBuildRoot::from_build_root(build_spec.create(ui)?, ui)?;
-//    let tarball = build_root.export(ui, naming)?;
+    let temp_dir_path = Temp::new_dir().unwrap().to_path_buf();
 
     let studio_command = Command::new("hab")
                                     .arg("studio")
                                     .arg("-r")
-                                    .arg("/tmp/tarball_studio")
+                                    .arg(&temp_dir_path)
                                     .arg("-t")
                                     .arg("bare")
-                                    .arg("new");
+                                    .arg("new")
                                     .output();
-//    let echo_command = Command::new("echo")  
+
+    let hab_pkg_path = format!("{:?}/.hab_pkg", &temp_dir_path);
+
+    let echo_command = Command::new("echo")  
+                                    .arg(hart_to_package)
+                                    .arg(">")
+                                    .arg(&hab_pkg_path)
+                                    .output();
+
+    let tar_command = Command::new("tar")
+                                   .arg("cpzf")
+                                   .arg("effit.tar.gz")
+                                   .arg("-C")
+                                   .arg(&hab_pkg_path)
+                                   .arg("./hab/pkgs")
+                                   .arg("./hab/bin")
+                                   .output();
     Ok(())
 }
 
