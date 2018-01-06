@@ -104,24 +104,31 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
                                     .arg("studio")
                                     .arg("-r")
                                     .arg(&temp_dir_path)
-                                    .arg("-t")
-                                    .arg("bare")
                                     .arg("new")
                                     .output();
 
-    let hab_pkg_path = format!("{:?}/.hab_pkg", &temp_dir_path);
-
-    let echo_command = Command::new("echo")  
-                                    .arg(hart_to_package)
-                                    .arg(">")
-                                    .arg(&hab_pkg_path)
+    let install_command = Command::new("hab")
+                                    .arg("studio")
+                                    .arg("-q")
+                                    .arg("-r")
+                                    .arg(&temp_dir_path)
+                                    .arg("run")
+                                    .arg("hab")
+                                    .arg("install")
+                                    .arg(&hart_to_package)
                                     .output();
+
+//    let echo_command = Command::new("echo")  
+//                                    .arg(hart_to_package)
+//                                    .arg(">")
+//                                    .arg(&hab_pkg_path)
+//                                    .output();
 
     let tar_command = Command::new("tar")
                                    .arg("cpzf")
                                    .arg("effit.tar.gz")
                                    .arg("-C")
-                                   .arg(&hab_pkg_path)
+                                   .arg(&temp_dir_path)
                                    .arg("./hab/pkgs")
                                    .arg("./hab/bin")
                                    .output();
