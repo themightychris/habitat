@@ -118,12 +118,9 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
                                     .arg(&hart_to_package)
                                     .output();
 
-//    let echo_command = Command::new("echo")  
-//                                    .arg(hart_to_package)
-//                                    .arg(">")
-//                                    .arg(&hab_pkg_path)
-//                                    .output();
 
+println!("==============");
+println!("{:?}", install_command);
     let tar_command = Command::new("tar")
                                    .arg("cpzf")
                                    .arg("effit.tar.gz")
