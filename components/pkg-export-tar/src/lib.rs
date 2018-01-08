@@ -25,7 +25,6 @@ pub mod cli;
 mod error;
 mod fs;
 pub mod rootfs;
-mod tar;
 mod util;
 
 use std::process::Command;
@@ -35,8 +34,6 @@ use common::ui::UI;
 use hcore::channel;
 use hcore::url as hurl;
 use mktemp::Temp;
-
-use tar::{TarBuildRoot};
 
 pub use build::BuildSpec;
 
@@ -119,8 +116,6 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
                                     .output();
 
 
-println!("==============");
-println!("{:?}", install_command);
     let tar_command = Command::new("tar")
                                    .arg("cpzf")
                                    .arg("effit.tar.gz")
@@ -131,12 +126,3 @@ println!("{:?}", install_command);
                                    .output();
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
-
