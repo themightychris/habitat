@@ -28,6 +28,7 @@ pub mod rootfs;
 mod util;
 
 use std::process::Command;
+use std::path::PathBuf;
 pub use cli::{Cli, PkgIdentArgOptions};
 pub use error::{Error, Result};
 use common::ui::UI;
@@ -97,32 +98,45 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
 
     let temp_dir_path = Temp::new_dir().unwrap().to_path_buf();
 
-    let studio_command = Command::new("hab")
-                                    .arg("studio")
-                                    .arg("-r")
-                                    .arg(&temp_dir_path)
-                                    .arg("new")
-                                    .output();
+    studio_command(&temp_dir_path);
+    install_command(&temp_dir_path, &hart_to_package);
+    tar_command(&temp_dir_path);
 
-    let install_command = Command::new("hab")
-                                    .arg("studio")
-                                    .arg("-q")
-                                    .arg("-r")
-                                    .arg(&temp_dir_path)
-                                    .arg("run")
-                                    .arg("hab")
-                                    .arg("install")
-                                    .arg(&hart_to_package)
-                                    .output();
-
-
-    let tar_command = Command::new("tar")
-                                   .arg("cpzf")
-                                   .arg("effit.tar.gz")
-                                   .arg("-C")
-                                   .arg(&temp_dir_path)
-                                   .arg("./hab/pkgs")
-                                   .arg("./hab/bin")
-                                   .output();
     Ok(())
+}
+
+fn studio_command(temp_dir_path: &PathBuf) {
+    Command::new("hab")
+        .arg("studio")
+        .arg("-r")
+        .arg(&temp_dir_path)
+        .arg("new")
+        .output()
+        .expect("Failed to create new error studio");
+}
+
+fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
+    Command::new("hab")
+        .arg("studio")
+        .arg("-q")
+        .arg("-r")
+        .arg(&temp_dir_path)
+        .arg("run")
+        .arg("hab")
+        .arg("install")
+        .arg(&hart_to_package)
+        .output()
+        .expect("Failed to install in Habitat studio");
+}
+
+fn tar_command(temp_dir_path: &PathBuf) {
+    Command::new("tar")
+        .arg("cpzf")
+        .arg("effit.tar.gz")
+        .arg("-C")
+        .arg(&temp_dir_path)
+        .arg("./hab/pkgs")
+        .arg("./hab/bin")
+        .output()
+        .expect("Tar failed");
 }
