@@ -4,9 +4,13 @@ pkg_origin=core
 pkg_version=$(cat "$PLAN_CONTEXT/../../VERSION")
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
 pkg_license=('Apache-2.0')
-pkg_source=nosuchfile.tar.gz
 pkg_deps=(core/coreutils core/findutils core/gawk core/grep core/bash core/tar core/gzip core/hab)
-pkg_build_deps=()
+pkg_build_deps=(
+  core/musl core/zlib-musl core/xz-musl core/bzip2-musl core/libarchive-musl
+  core/openssl-musl core/libsodium-musl
+  core/coreutils core/rust core/gcc core/make
+)
+
 pkg_bin_dirs=(bin)
 
 bin=$_pkg_distname
