@@ -100,23 +100,28 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
 
     studio_command(&temp_dir_path);
     install_command(&temp_dir_path, &hart_to_package);
-    tar_command(&temp_dir_path);
+    tar_command(&temp_dir_path, &hart_to_package);
 
-    Ok(())
-}
+    Ok(()) }
 
 fn studio_command(temp_dir_path: &PathBuf) {
-    Command::new("hab")
+    let status = Command::new("hab")
         .arg("studio")
         .arg("-r")
         .arg(&temp_dir_path)
         .arg("new")
-        .output()
-        .expect("Failed to create new error studio");
+        .status()
+        .expect("failed to create studio");
+
+    if status.success() {
+        println!("Able to create studio to export package as tarball, proceeding...");
+    } else {
+        println!("Unable to create a studio to export the package as a tarball.")
+    }
 }
 
 fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
-    Command::new("hab")
+    let status = Command::new("hab")
         .arg("studio")
         .arg("-q")
         .arg("-r")
@@ -125,18 +130,30 @@ fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
         .arg("hab")
         .arg("install")
         .arg(&hart_to_package)
-        .output()
-        .expect("Failed to install in Habitat studio");
+        .status()
+        .expect("failed to install package in studio");
+
+        if status.success() {
+            println!("Hart package is installable in a studio, proceeding with exporting it to a tarball...");
+        } else {
+            println!("Hart package is NOT installable in a studio and could not be exported into a tarball, please see the above error for more details.");
+        }
 }
 
-fn tar_command(temp_dir_path: &PathBuf) {
-    Command::new("tar")
+fn tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
+    let status = Command::new("tar")
         .arg("cpzf")
-        .arg("effit.tar.gz")
+        .arg(format!("{}.tar.gz", &hart_to_package))
         .arg("-C")
         .arg(&temp_dir_path)
         .arg("./hab/pkgs")
         .arg("./hab/bin")
-        .output()
-        .expect("Tar failed");
+        .status()
+        .expect("failed to create tarball");
+
+    if status.success() {
+        println!("Tarball export complete!")
+    } else {
+        println!("Unable to export package to tarball.")
+    }
 }
