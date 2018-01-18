@@ -91,6 +91,8 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
 pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
 
    let hart_to_package = build_spec.idents_or_archives.join(", ");
+   let builder_url = build_spec.url;
+
    ui.begin(format!(
         "Building a tarball with: {}",
         hart_to_package
@@ -98,11 +100,12 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
 
     let temp_dir_path = Temp::new_dir().unwrap().to_path_buf();
 
-    initiate_tar_command(&temp_dir_path, &hart_to_package);
+    initiate_tar_command(&temp_dir_path, &hart_to_package, &builder_url);
 
-    Ok(())}
+    Ok(())
+}
 
-fn initiate_tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
+fn initiate_tar_command(temp_dir_path: &PathBuf, hart_to_package: &str, builder_url: &str) {
     let status = Command::new("hab")
         .arg("studio")
         .arg("-r")
@@ -113,13 +116,13 @@ fn initiate_tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
 
     if status.success() {
         println!("Able to create studio to export package as tarball, proceeding...");
-        install_command(&temp_dir_path, &hart_to_package);
+        install_command(&temp_dir_path, &hart_to_package, &builder_url);
     } else {
         println!("Unable to create a studio to export the package as a tarball.")
     }
 }
 
-fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
+fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str, builder_url: &str) {
     let status = Command::new("hab")
         .arg("studio")
         .arg("-q")
@@ -128,6 +131,8 @@ fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
         .arg("run")
         .arg("hab")
         .arg("install")
+        .arg("-u")
+        .arg(builder_url)
         .arg(&hart_to_package)
         .status()
         .expect("failed to install package in studio");
