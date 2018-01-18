@@ -98,13 +98,11 @@ pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()>
 
     let temp_dir_path = Temp::new_dir().unwrap().to_path_buf();
 
-    studio_command(&temp_dir_path);
-    install_command(&temp_dir_path, &hart_to_package);
-    tar_command(&temp_dir_path, &hart_to_package);
+    initiate_tar_command(&temp_dir_path, &hart_to_package);
 
-    Ok(()) }
+    Ok(())}
 
-fn studio_command(temp_dir_path: &PathBuf) {
+fn initiate_tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
     let status = Command::new("hab")
         .arg("studio")
         .arg("-r")
@@ -115,6 +113,7 @@ fn studio_command(temp_dir_path: &PathBuf) {
 
     if status.success() {
         println!("Able to create studio to export package as tarball, proceeding...");
+        install_command(&temp_dir_path, &hart_to_package);
     } else {
         println!("Unable to create a studio to export the package as a tarball.")
     }
@@ -135,6 +134,7 @@ fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
 
         if status.success() {
             println!("Hart package is installable in a studio, proceeding with exporting it to a tarball...");
+            tar_command(&temp_dir_path, &hart_to_package);
         } else {
             println!("Hart package is NOT installable in a studio and could not be exported into a tarball, please see the above error for more details.");
         }
