@@ -39,13 +39,13 @@ path = "../core"
 path = "../common"
 
 [dependencies.habitat_depot_client]
-path = "../builder-depot-client"
+git = "https://github.com/habitat-sh/builder.git"
 
 [dependencies.habitat_api_client]
-path = "../builder-api-client"
+git = "https://github.com/habitat-sh/builder.git"
 
 [dependencies.habitat_http_client]
-path = "../http-client"
+git = "https://github.com/habitat-sh/builder.git"
 
 [dependencies.uuid]
 version = "*"

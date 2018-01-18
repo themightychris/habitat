@@ -7,7 +7,7 @@ workspace = "../../"
 [dependencies]
 clippy = {version = "*", optional = true}
 ansi_term = "*"
-habitat-builder-protocol = { path = "../builder-protocol" }
+habitat-builder-protocol = { git = "https://github.com/habitat-sh/builder.git" }
 hyper = "0.10"
 libc = "*"
 log = "*"
@@ -20,10 +20,20 @@ toml = { version = "*", default-features = false }
 uuid = { version = "*", features = ["v4"] }
 
 [dependencies.habitat_core]
-path = "../core"
+# JB: This is decidedly not awesome, but having it like this is the only way to get it to compile.
+# When it exists as a path reference, e.g. path = "../core" then cargo gets confused and throws
+# compile time errors on things that aren't actually errors. It's because this crate depends on
+# habitat_depot_client, which pulls from the builder git ref. habitat_depot_client, in turn,
+# also depends on core, but it pulls core in through a git ref to the habitat repo, like you see
+# below. That means there are 2 habitat_core crates in Cargo.lock, one local and one remote via
+# git. And apparently that's enough to confuse cargo into throwing compile time errors that
+# aren't real. Having it like this is lame, but it means only 1 copy of the core crate, so everything
+# compiles.
+git = "https://github.com/habitat-sh/habitat.git"
+branch = "jb/remove-builder"
 
 [dependencies.habitat_depot_client]
-path = "../builder-depot-client"
+git = "https://github.com/habitat-sh/builder.git"
 
 [target.'cfg(windows)'.dependencies]
 kernel32-sys = "*"

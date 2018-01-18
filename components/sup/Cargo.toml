@@ -26,7 +26,7 @@ glob = "*"
 habitat_butterfly = { path = "../butterfly" }
 habitat_common = { path = "../common" }
 habitat_core = { path = "../core" }
-habitat_depot_client = { path = "../builder-depot-client" }
+habitat_depot_client = { git = "https://github.com/habitat-sh/builder.git" }
 habitat-eventsrv-client = { path = "../eventsrv-client" }
 habitat-launcher-client = { path = "../launcher-client" }
 handlebars = { version = "*", default-features = false }
@@ -61,6 +61,7 @@ hyper = "0.10"
 
 [dev-dependencies.habitat_core]
 path = "../core"
+
 [dev-dependencies.habitat_butterfly]
 path = "../butterfly"
 
