@@ -134,16 +134,16 @@ fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
 
         if status.success() {
             println!("Hart package is installable in a studio, proceeding with exporting it to a tarball...");
-            tar_command(&temp_dir_path, &hart_to_package);
+            tar_command(&temp_dir_path);
         } else {
             println!("Hart package is NOT installable in a studio and could not be exported into a tarball, please see the above error for more details.");
         }
 }
 
-fn tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
+fn tar_command(temp_dir_path: &PathBuf) {
     let status = Command::new("tar")
         .arg("cpzf")
-        .arg(format!("{}.tar.gz", &hart_to_package))
+        .arg(format!("my_tar.tar.gz"))
         .arg("-C")
         .arg(&temp_dir_path)
         .arg("./hab/pkgs")
