@@ -39,42 +39,42 @@ do_prepare() {
   _common_prepare
 
   export rustc_target="x86_64-unknown-linux-musl"
-  build_line "setting rustc_target=$rustc_target"
+  build_line "Setting rustc_target=$rustc_target"
 
-  la_ldflags="-l$(pkg_path_for zlib-musl)/lib -lz"
-  la_ldflags="$la_ldflags -l$(pkg_path_for xz-musl)/lib -llzma"
-  la_ldflags="$la_ldflags -l$(pkg_path_for bzip2-musl)/lib -lbz2"
-  la_ldflags="$la_ldflags -l$(pkg_path_for openssl-musl)/lib -lssl -lcrypto"
+  la_ldflags="-L$(pkg_path_for zlib-musl)/lib -lz"
+  la_ldflags="$la_ldflags -L$(pkg_path_for xz-musl)/lib -llzma"
+  la_ldflags="$la_ldflags -L$(pkg_path_for bzip2-musl)/lib -lbz2"
+  la_ldflags="$la_ldflags -L$(pkg_path_for openssl-musl)/lib -lssl -lcrypto"
 
-  export libarchive_lib_dir=$(pkg_path_for libarchive-musl)/lib
-  export libarchive_include_dir=$(pkg_path_for libarchive-musl)/include
-  export libarchive_ldflags="$la_ldflags"
-  export libarchive_static=true
-  export openssl_lib_dir=$(pkg_path_for openssl-musl)/lib
-  export openssl_include_dir=$(pkg_path_for openssl-musl)/include
-  export openssl_static=true
-  export sodium_lib_dir=$(pkg_path_for libsodium-musl)/lib
-  export sodium_static=true
+  export LIBARCHIVE_LIB_DIR=$(pkg_path_for libarchive-musl)/lib
+  export LIBARCHIVE_INCLUDE_DIR=$(pkg_path_for libarchive-musl)/include
+  export LIBARCHIVE_LDFLAGS="$la_ldflags"
+  export LIBARCHIVE_STATIC=true
+  export OPENSSL_LIB_DIR=$(pkg_path_for openssl-musl)/lib
+  export OPENSSL_INCLUDE_DIR=$(pkg_path_for openssl-musl)/include
+  export OPENSSL_STATIC=true
+  export SODIUM_LIB_DIR=$(pkg_path_for libsodium-musl)/lib
+  export SODIUM_STATIC=true
 
-  # used to find libgcc_s.so.1 when compiling `build.rs` in dependencies. since
+  # Used to find libgcc_s.so.1 when compiling `build.rs` in dependencies. Since
   # this used only at build time, we will use the version found in the gcc
   # package proper--it won't find its way into the final binaries.
-  export ld_library_path=$(pkg_path_for gcc)/lib
-  build_line "setting ld_library_path=$ld_library_path"
+  export LD_LIBRARY_PATH=$(pkg_path_for gcc)/lib
+  build_line "Setting LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
-  plan_tar_pkg_ident=$(pkg_path_for tar | sed "s,^$hab_pkg_path/,,")
-  export plan_tar_pkg_ident
-  build_line "setting plan_tar_pkg_ident=$plan_tar_pkg_ident"
+  PLAN_TAR_PKG_IDENT=$(pkg_path_for tar | sed "s,^$HAB_PKG_PATH/,,")
+  export PLAN_TAR_PKG_IDENT
+  build_line "Setting PLAN_TAR_PKG_IDENT=$PLAN_TAR_PKG_IDENT"
 }
 
 do_build() {
-  pushd $plan_context > /dev/null
+  pushd $PLAN_CONTEXT > /dev/null
   cargo build ${build_type#--debug} --target=$rustc_target --verbose
   popd > /dev/null
 }
 
 do_install() {
-  install -v -d $cargo_target_dir/$rustc_target/${build_type#--}/$bin \
+  install -v -D $CARGO_TARGET_DIR/$rustc_target/${build_type#--}/$bin \
     $pkg_prefix/bin/$bin
 }
 
@@ -83,3 +83,5 @@ do_strip() {
     do_default_strip
   fi
 }
+
+
