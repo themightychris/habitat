@@ -22,6 +22,7 @@ use std::str::FromStr;
 use common;
 use common::command::package::install::InstallSource;
 use common::ui::{UI, Status};
+use failure::SyncFailure;
 use hab;
 use hcore::fs::{CACHE_ARTIFACT_PATH, CACHE_KEY_PATH, cache_artifact_path, cache_key_path};
 use hcore::PROGRAM_NAME;
@@ -217,7 +218,8 @@ impl<'a> BuildSpec<'a> {
     ) -> Result<()> {
         let dst = util::bin_path();
         for pkg in user_pkgs.iter() {
-            hab::command::pkg::binlink::binlink_all_in_pkg(ui, &pkg, &dst, rootfs.as_ref(), true)?;
+            hab::command::pkg::binlink::binlink_all_in_pkg(ui, &pkg, &dst, rootfs.as_ref(), true)
+                .map_err(SyncFailure::new)?;
         }
 
         Ok(())
@@ -235,9 +237,11 @@ impl<'a> BuildSpec<'a> {
             &base_pkgs.busybox.clone().expect("No busybox in idents"),
             &dst,
             rootfs.as_ref(),
-            true,
-        )?;
-        hab::command::pkg::binlink::start(ui, &base_pkgs.hab, "hab", &dst, rootfs.as_ref(), true)?;
+            true
+        )
+            .map_err(SyncFailure::new)?;
+        hab::command::pkg::binlink::start(ui, &base_pkgs.hab, "hab", &dst, rootfs.as_ref(), true)
+            .map_err(SyncFailure::new)?;
 
         Ok(())
     }
