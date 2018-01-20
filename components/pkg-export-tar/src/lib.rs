@@ -19,6 +19,7 @@ extern crate lazy_static;
 extern crate log;
 #[macro_use]
 extern crate serde_json;
+extern crate regex;
 
 mod build;
 pub mod cli;
@@ -37,6 +38,7 @@ use hcore::channel;
 use hcore::url as hurl;
 use hcore::package::{PackageIdent};
 use mktemp::Temp;
+use regex::Regex;
 
 pub use build::BuildSpec;
 
@@ -91,15 +93,7 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
 }
 
 pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
-
-println!("==============ONE");
-println!("build_spec {:?}", build_spec);
    let hart_to_package = build_spec.idents_or_archives.join(", ");
-
-println!("============TWO");
-let hart_package = PackageIdent::from_str(&hart_to_package);
-println!("package_ident {:?}", hart_package);
-
    let builder_url = build_spec.url;
 
    ui.begin(format!(
@@ -173,7 +167,16 @@ fn tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
 }
 
 fn determine_name_of_tarball(hart_to_package: &str) -> String {
-    let package_ident = PackageIdent::from_str(&hart_to_package).unwrap();
-    println!("PackageIdent {:?}", package_ident);
-    format!("{}-{}.tar.gz", package_ident.origin, package_ident.name)
+    let slash_syntax = Regex::new(r".+/.+").unwrap();
+    
+    // Check whether hart_to_package is in "core/origin" format
+    // If so, create a PackageIdent, and use that to extract the origin
+    // and package name and format it as a string
+    if slash_syntax.is_match(&hart_to_package) {
+        let package_ident = PackageIdent::from_str(&hart_to_package).unwrap();
+        println!("PackageIdent {:?}", package_ident);
+        format!("{}-{}.tar.gz", package_ident.origin, package_ident.name)
+    } else {
+        String::from(hart_to_package)
+    }
 }
