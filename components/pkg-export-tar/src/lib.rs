@@ -29,11 +29,13 @@ mod util;
 
 use std::process::Command;
 use std::path::PathBuf;
+use std::str::FromStr;
 pub use cli::{Cli, PkgIdentArgOptions};
 pub use error::{Error, Result};
 use common::ui::UI;
 use hcore::channel;
 use hcore::url as hurl;
+use hcore::package::{PackageIdent};
 use mktemp::Temp;
 
 pub use build::BuildSpec;
@@ -90,7 +92,14 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
 
 pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
 
+println!("==============ONE");
+println!("build_spec {:?}", build_spec);
    let hart_to_package = build_spec.idents_or_archives.join(", ");
+
+println!("============TWO");
+let hart_package = PackageIdent::from_str(&hart_to_package);
+println!("package_ident {:?}", hart_package);
+
    let builder_url = build_spec.url;
 
    ui.begin(format!(
@@ -148,7 +157,7 @@ fn install_command(temp_dir_path: &PathBuf, hart_to_package: &str, builder_url: 
 fn tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
     let status = Command::new("tar")
         .arg("cpzf")
-        .arg(format!("{}.tar.gz", &hart_to_package))
+        .arg(determine_name_of_tarball(&hart_to_package))
         .arg("-C")
         .arg(&temp_dir_path)
         .arg("./hab/pkgs")
@@ -161,4 +170,10 @@ fn tar_command(temp_dir_path: &PathBuf, hart_to_package: &str) {
     } else {
         println!("Unable to export package to tarball.")
     }
+}
+
+fn determine_name_of_tarball(hart_to_package: &str) -> String {
+    let package_ident = PackageIdent::from_str(&hart_to_package).unwrap();
+    println!("PackageIdent {:?}", package_ident);
+    format!("{}-{}.tar.gz", package_ident.origin, package_ident.name)
 }
