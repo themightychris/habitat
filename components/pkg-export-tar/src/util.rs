@@ -15,23 +15,16 @@
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::str::FromStr;
 
 use hcore::package::{PackageIdent, PackageInstall};
 
 use error::Result;
-use super::BUSYBOX_IDENT;
 
 const BIN_PATH: &'static str = "/bin";
 
 /// Returns the `bin` path used for symlinking programs.
 pub fn bin_path() -> &'static Path {
     Path::new(BIN_PATH)
-}
-
-/// Returns the Package Identifier for a Busybox package.
-pub fn busybox_ident() -> Result<PackageIdent> {
-    Ok(PackageIdent::from_str(BUSYBOX_IDENT)?)
 }
 
 /// Returns the path to a package prefix for the provided Package Identifier in a root file system.

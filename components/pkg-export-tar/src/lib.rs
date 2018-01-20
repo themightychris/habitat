@@ -17,7 +17,6 @@ extern crate failure_derive;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-#[macro_use]
 extern crate serde_json;
 extern crate regex;
 
@@ -86,13 +85,12 @@ pub fn export_for_cli_matches(ui: &mut UI, matches: &clap::ArgMatches) -> Result
     let default_channel = channel::default();
     let default_url = hurl::default_bldr_url();
     let spec = BuildSpec::new_from_cli_matches(&matches, &default_channel, &default_url);
-    let naming = Naming::new_from_cli_matches(&matches);
-    let tarball = export(ui, spec, &naming)?;
+    export(ui, spec)?;
 
     Ok(())
 }
 
-pub fn export(ui: &mut UI, build_spec: BuildSpec, naming: &Naming) -> Result<()> {
+pub fn export(ui: &mut UI, build_spec: BuildSpec) -> Result<()> {
    let hart_to_package = build_spec.idents_or_archives.join(", ");
    let builder_url = build_spec.url;
 
@@ -174,7 +172,6 @@ fn determine_name_of_tarball(hart_to_package: &str) -> String {
     // and package name and format it as a string
     if slash_syntax.is_match(&hart_to_package) {
         let package_ident = PackageIdent::from_str(&hart_to_package).unwrap();
-        println!("PackageIdent {:?}", package_ident);
         format!("{}-{}.tar.gz", package_ident.origin, package_ident.name)
     } else {
         String::from(hart_to_package)
